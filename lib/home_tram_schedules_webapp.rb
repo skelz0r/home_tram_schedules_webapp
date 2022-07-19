@@ -7,6 +7,12 @@ class HomeTramSchedulesWebapp < Grape::API
   format :json
 
   get '/' do
-    NextTramSchedulesApi.new('T_HANGAR_R').perform
+    {
+      status: 'ok'
+    }
+  end
+
+  get '/stops/:uid' do
+    NextTramSchedulesApi.new(params[:uid]).perform
   end
 end

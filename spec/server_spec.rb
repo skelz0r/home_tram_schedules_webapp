@@ -8,22 +8,45 @@ RSpec.describe HomeTramSchedulesWebapp do
     HomeTramSchedulesWebapp
   end
 
-  let(:payload) do
-    [
-      {
-        'lol' => 'oki',
-      }
-    ]
+
+  describe 'root path' do
+    subject { get '/' }
+
+    it 'works' do
+      subject
+
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body)).to eq({ 'status' => 'ok' })
+    end
   end
 
-  before do
-    allow_any_instance_of(NextTramSchedulesApi).to receive(:perform).and_return(payload)
-  end
+  describe 'stops path' do
+    subject { get '/stops/whatever' }
 
-  it 'works' do
-    get '/'
+    let(:payload) do
+      [
+        {
+          'lol' => 'oki'
+        }
+      ]
+    end
 
-    expect(last_response.status).to eq(200)
-    expect(JSON.parse(last_response.body)).to eq(payload)
+    before do
+      allow(NextTramSchedulesApi).to receive(:new).and_call_original
+      allow_any_instance_of(NextTramSchedulesApi).to receive(:perform).and_return(payload)
+    end
+
+    it 'works' do
+      subject
+
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body)).to eq(payload)
+    end
+
+    it 'instanciate NextTramSchedulesApi with uid' do
+      expect(NextTramSchedulesApi).to receive(:new).with('whatever')
+
+      subject
+    end
   end
 end
