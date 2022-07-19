@@ -12,4 +12,6 @@ bundle install
 
 ## Run
 
-FEEDME
+```sh
+rackup -Ilib -p 9292
+```
