@@ -7,7 +7,7 @@ class HomeTramSchedulesWebapp < Grape::API
   format :json
 
   helpers do
-    def favorite_spots
+    def favorite_stops
       [
         {
           id: 'T_HANGAR_R',
@@ -30,9 +30,9 @@ class HomeTramSchedulesWebapp < Grape::API
   end
 
   get '/stops' do
-    favorite_spots.map do |spot|
+    favorite_stops.map do |spot|
       spot.merge(
-        url: "#{ENV.fetch('HOST')}/spots/#{spot[:id]}"
+        url: "#{ENV.fetch('HOST')}/stops/#{spot[:id]}"
       )
     end
   end
