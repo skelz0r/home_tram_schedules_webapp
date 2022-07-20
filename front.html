@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tram stops</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <div id="stops-block" class="px-4">
+        <h3 class="pt-4 font-bold font-sky-700">Arrêts</h3>
+
+        <ul class="pt-2" id="stops"></ul>
+      </div>
+
+      <hr class="my-4" />
+
+      <div id="stop-block" class="pt-4 px-4 hidden">
+        <h3 class="pb-4 font-bold font-sky-700"><span></span></h3>
+
+        <table
+          class="table table-fixed border-collapse border border-slate-500"
+        >
+          <thead>
+            <tr>
+              <th class="border border-slate-600">Destination</th>
+              <th class="border border-slate-600">Passage</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      const host = "http://tram.skelz0r.fr:16900";
+
+      const stopsList = document.getElementById("stops");
+
+      const stopBlock = document.querySelector("#stop-block");
+      const stopTable = document.querySelector("#stop-block table tbody");
+      const stopDescription = document.querySelector("#stop-block h3 span");
+
+      function getAnchor() {
+        return document.URL.split("#").length > 1
+          ? document.URL.split("#")[1]
+          : null;
+      }
+
+      function addStopSchedule(event, element) {
+        stopTable.innerHTML = "";
+        let stopId = (element || event.srcElement).getAttribute("data-uri");
+
+        fetch(host + "/stops/" + stopId, {
+          mode: "cors",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            for (const schedule of data) {
+              let lineSchedule = document.createElement("tr");
+              let cellDestinationSchedule = document.createElement("td");
+              let cellTimeSchedule = document.createElement("td");
+
+              cellTimeSchedule.setAttribute("class", "p-2");
+              cellDestinationSchedule.setAttribute("class", "p-2");
+
+              cellDestinationSchedule.innerText = schedule.terminus;
+              cellTimeSchedule.innerText = moment(
+                schedule.schedule.estimated
+              ).fromNow();
+
+              lineSchedule.appendChild(cellDestinationSchedule);
+              lineSchedule.appendChild(cellTimeSchedule);
+
+              lineSchedule.setAttribute("class", "border border-slate-700 p-2");
+
+              stopTable.appendChild(lineSchedule);
+            }
+
+            stopBlock.classList.remove("hidden");
+            stopDescription.innerText = (element || event.srcElement).innerText;
+          });
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        fetch(host + "/stops", {
+          mode: "cors",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            for (const stop of data) {
+              let listItem = document.createElement("li");
+              let listItemLink = document.createElement("a");
+
+              listItemLink.setAttribute("data-uri", stop.id);
+              listItemLink.setAttribute("href", "#" + stop.id);
+              listItemLink.innerText =
+                "[" + stop.name + "] Direction: " + stop.direction;
+
+              listItemLink.setAttribute("class", "text-blue-600");
+
+              listItem.appendChild(listItemLink);
+
+              stopsList.appendChild(listItem);
+            }
+
+            document.querySelectorAll("[data-uri]").forEach((item) => {
+              item.addEventListener("click", addStopSchedule);
+            });
+
+            let currentAnchor = getAnchor();
+
+            if (currentAnchor) {
+              addStopSchedule(
+                null,
+                document.querySelector('[data-uri="' + currentAnchor + '"]')
+              );
+            }
+          });
+      });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+  </body>
+</html>
