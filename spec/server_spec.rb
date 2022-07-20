@@ -8,7 +8,6 @@ RSpec.describe HomeTramSchedulesWebapp do
     HomeTramSchedulesWebapp
   end
 
-
   describe 'root path' do
     subject { get '/' }
 
@@ -20,7 +19,18 @@ RSpec.describe HomeTramSchedulesWebapp do
     end
   end
 
-  describe 'stops path' do
+  describe 'GET /stops' do
+    subject { get '/stops' }
+
+    it 'works' do
+      subject
+
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body).count).to be >= 2
+    end
+  end
+
+  describe 'GET stops/:uid' do
     subject { get '/stops/whatever' }
 
     let(:payload) do
